@@ -139,7 +139,7 @@ export default {
     flex: 1;
     min-height: 100vh;
     align-items: center;
-    font-family: Arial !important;
+    font-family: Arial, Helvetica, sans-serif;
   }
 
   #app {
