@@ -1,11 +1,27 @@
 <template>
   <div id="app">
+
     <div class="header">
       <h1>It's always 1738 somewhere...</h1>
-      <a class="btn-info" @click="findFetty">Scroll to Fetty Clock</a>
+      <div class="buttons">
+        <a v-if="allClocks" class="btn btn-find" @click="findFetty(0)">Find Fetty Clock</a>
+        <a class="btn btn-show" @click="alwaysShowFetty">
+          {{allClocks ? 'Only Show Timezones' : 'Always Show Fetty Clock'}}
+        </a>
+      </div>
     </div>
-    <div v-for="n in 1440" :key="n">
-      <div class="clock">
+
+    <div class="sidenav">
+      <div v-for="f in allFetty" :key="f.i+'_fetty'">
+        <a class="btn btn-find" @click="findFetty(f.i)"> Fetty @ {{f.time}}</a>
+      </div>
+    </div>
+
+    <div v-for="n in (allClocks ? 1440 : getTimezones)" :key="n+'_clock'">
+      <div class="clock" :id="n+'_fettyclock'">
+        <h1 class="location">
+          {{allClocks ? `Your time minus ${timeDiff(n)}.` : getLocation(n)}}
+        </h1>
         <div class="outer-clock-face">
           <div class="marking marking-one"></div>
           <div class="marking marking-two"></div>
@@ -19,32 +35,124 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
 /* eslint-disable */
+import timezones from './timezones.json'
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 
+// TODO: Make navbar left gone when alwaysShowFetty
+// TODO: Get sidebar fetties to show face
+// TODO: Adjust sidebar buttons width
+
 export default {
   name: 'app',
+  data: () => ({
+    allClocks: false,
+    fetties: [],
+  }),
+  computed: {
+    getTimezones() {
+      return Object.keys(timezones).length;
+    },
+    allFetty() {
+      return this.fetties;
+    }
+  },
   methods: {
-    findFetty() {
-      if (document.getElementById('fetty')) {
-        document.getElementById('fetty').scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+    timeDiff(diff) {
+      if (diff < 60) {
+        return `${diff} minutes`;
+      } else if (diff < 1440) {
+        const mins = diff % 60;
+        const hours = (diff - mins) / 60;
+        return `${hours} hours and ${mins} minutes`;
+      } else {
+        return `1 day`;
       }
     },
+    addFetty(i, time) {
+      const fetty = this.fetties.find(f => f.i === i);
+      if (!fetty) {
+        this.fetties.push({
+          i,
+          time,
+        });
+      }
+    },
+    deleteFetty(i) {
+      const fetty = this.fetties.find(f => f.i === i);
+    },
+    alwaysShowFetty() {
+      this.allClocks = !this.allClocks;
+    },
+    findFetty(i) {
+      if (i) {
+        if (document.getElementById(i+'_fettyclock')) {
+          document.getElementById(i+'_fettyclock').scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+        } else {
+          alert('No Fetty Clock On Page')
+        }
+      } else {
+        if (document.getElementsByClassName('fetty')[0]) {
+          document.getElementsByClassName('fetty')[0].scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+        } else {
+          alert('No Fetty Clock On Page')
+        }
+      }
+    },
+    getLocation(i) {
+      const idx = i - 1;
+      const key = Object.keys(timezones)[idx];
+      const time = timezones[key];
+      const location = time.substr(12);
+      return location;
+    },
+    offsetTime(i) {
+      // Return days minus 1 minutes, sends back 1440 clocks
+      if (this.allClocks) {
+        return dayjs().subtract(i, 'minutes');
+      }
+      // Return days minus UTC offsetTime, sends back 250 clocks
+      else {
+        const key = Object.keys(timezones)[i];
+        const time = timezones[key];
+        const addORsub = time[4];
+        const hours = time.substr(5,2);
+        const mins = time.substr(8,2);
+        const totalDiff = parseFloat(hours) + parseFloat(mins/60);
+
+        if (addORsub === '+') {
+          return dayjs().add(totalDiff, 'hours');
+        } else {
+          return dayjs().subtract(totalDiff, 'hours');
+        }
+      }
+      return dayjs();
+    }
   },
   mounted() {
+    const self = this;
+    for (var i = 0; i < Object.keys(timezones).length; i++) {
+      const key = Object.keys(timezones)[i];
+      const time = timezones[key];
+      const addORsub = time[4];
+      const UTCoffset = time.substr(4, 6);
+      const location = time.substr(12);
+    }
+
    function setDate() {
      const secondHand = document.getElementsByClassName('second-hand');
      const minsHand = document.getElementsByClassName('min-hand');
      const hourHand = document.getElementsByClassName('hour-hand');
 
      for (var i = 0; i < hourHand.length; i++) {
-       const now = dayjs().subtract(i, 'minutes');
+       const now = self.offsetTime(i);
 
        const seconds = now.format('ss');
        const secondsDegrees = ((seconds / 60) * 360) + 90;
@@ -61,17 +169,22 @@ export default {
        const img = hourHand[i].closest('.inner-clock-face');
        const time = dayjs(now).format('kk:mm');
        if (time === '17:38') {
-         img.id = 'fetty';
+         img.classList.add('fetty');
        } else {
-         if (img) {
-           img.removeAttribute('id');
+         if ('17:59' > time && time > '17:00') {
+           self.addFetty(i, time)
+         } else {
+           if (img.classList.contains('fetty')) {
+             img.classList.remove('fetty');
+             self.deleteFetty(i)
+           }
          }
        }
      }
    }
    setInterval(setDate, 1000);
    setDate();
- }
+ },
 }
 </script>
 
@@ -140,19 +253,26 @@ export default {
     min-height: 100vh;
     align-items: center;
     font-family: Arial, Helvetica, sans-serif;
-    margin-top: 5em;
+    margin-top: 8em;
+    margin-left: 160px;
   }
 
   #app {
     display: flex;
     flex-flow: wrap;
-  }
-  #fetty {
-    background: url('https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/Fetty_Wap_%E2%80%93_Fetty_Wap.png/220px-Fetty_Wap_%E2%80%93_Fetty_Wap.png');
-    background-size: cover;
+    justify-content: center;
   }
 
-  .btn-info {
+  div[id$="_fettyclock"] {
+
+  }
+
+  .fetty {
+    background: url('https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/Fetty_Wap_%E2%80%93_Fetty_Wap.png/220px-Fetty_Wap_%E2%80%93_Fetty_Wap.png') !important;
+    background-size: cover !important;
+  }
+
+  .btn {
     display: inline-block;
     font-weight: 400;
     text-align: center;
@@ -160,17 +280,30 @@ export default {
     vertical-align: middle;
     border: 1px solid transparent;
     padding: .375rem .75rem;
+    margin: 10px 20px;
     font-size: 2rem;
     line-height: 1.5;
     border-radius: .25rem;
     color: #fff;
-    background-color: #17a2b8;
-    border-color: #17a2b8;
     text-decoration: none;
     cursor: pointer;
   }
 
+  .btn-find {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+  }
+
+  .btn-show {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+
   .clock {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
     width: 30rem;
     height: 30rem;
     border: 3px solid #545271;
@@ -255,12 +388,13 @@ export default {
 
   .header {
     padding: 10px 0;
-    background: #555;
+    background-color: #111;
     color: #f1f1f1;
     position: fixed;
     top: 0;
+    left: 0;
     width: 100%;
-    z-index: 999;
+    z-index: 99;
     text-align: end;
     display: block;
     text-align: center;
@@ -271,19 +405,39 @@ export default {
     margin-bottom: 15px;
   }
 
-  @media only screen and (min-width: 875px) {
+  .buttons {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+  }
+
+  .location {
+    font-weight: bold;
+    position: absolute;
+    top: 350px;
+  }
+
+  .sidenav {
+    height: 100%;
+    width: 160px;
+    position: fixed;
+    z-index: 90;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 150px;
+  }
+
+  @media only screen and (min-width: 470px) {
     body {
-      margin-top: 0;
+      margin-top: 5em;
     }
-    .header {
-      display: flex;
-      justify-content: space-evenly;
-    }
-    .header h1 {
-      margin-bottom: 0;
-    }
-    .btn-info {
-      margin-right: 15rem;
+  }
+
+  @media only screen and (min-width: 535px) {
+    body {
+      margin-top: 3em;
     }
   }
 </style>
