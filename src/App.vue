@@ -140,6 +140,7 @@ export default {
     min-height: 100vh;
     align-items: center;
     font-family: Arial, Helvetica, sans-serif;
+    margin-top: 5em;
   }
 
   #app {
@@ -159,7 +160,6 @@ export default {
     vertical-align: middle;
     border: 1px solid transparent;
     padding: .375rem .75rem;
-    margin-right: 15rem;
     font-size: 2rem;
     line-height: 1.5;
     border-radius: .25rem;
@@ -262,11 +262,28 @@ export default {
     width: 100%;
     z-index: 999;
     text-align: end;
-    display: flex;
-    justify-content: space-evenly;
+    display: block;
+    text-align: center;
   }
 
   .header h1 {
     font-size: 2em;
+    margin-bottom: 15px;
+  }
+
+  @media only screen and (min-width: 875px) {
+    body {
+      margin-top: 0;
+    }
+    .header {
+      display: flex;
+      justify-content: space-evenly;
+    }
+    .header h1 {
+      margin-bottom: 0;
+    }
+    .btn-info {
+      margin-right: 15rem;
+    }
   }
 </style>
