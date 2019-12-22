@@ -12,8 +12,9 @@
     </div>
 
     <div class="sidenav">
+      <h1 v-if="!allClocks">Almost 1738...</h1>
       <div v-for="f in allFetty" :key="f.i+'_fetty'">
-        <a class="btn btn-find" @click="findFetty(f.i)"> Fetty @ {{f.time}}</a>
+        <a style="margin: 10px 0 !important;" class="btn btn-find" @click="findFetty(f.i)"> Fetty @{{f.time}}</a>
       </div>
     </div>
 
@@ -46,9 +47,7 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 
-// TODO: Make navbar left gone when alwaysShowFetty
-// TODO: Get sidebar fetties to show face
-// TODO: Adjust sidebar buttons width
+// TODO: Finish deleteFetty func
 
 export default {
   name: 'app',
@@ -78,6 +77,13 @@ export default {
     },
     addFetty(i, time) {
       const fetty = this.fetties.find(f => f.i === i);
+      // Updates time
+      if (fetty) {
+        if (fetty.time !== time) {
+          fetty.time = time;
+        }
+      }
+      // Chceks if fetty already exists
       if (!fetty) {
         this.fetties.push({
           i,
@@ -87,9 +93,20 @@ export default {
     },
     deleteFetty(i) {
       const fetty = this.fetties.find(f => f.i === i);
+      const idx = this.fetties.indexOf(fetty);
+      this.fetties.splice(idx, 1);
     },
     alwaysShowFetty() {
+      const fetties = document.getElementsByClassName('fetty');
       this.allClocks = !this.allClocks;
+      if (this.allClocks) {
+        for (var i = 0; i < fetties.length; i++) {
+          if (fetties[i].classList.contains('fetty')) {
+            fetties[i].classList.remove('fetty');
+          }
+        }
+        this.fetties = [];
+      }
     },
     findFetty(i) {
       if (i) {
@@ -138,14 +155,6 @@ export default {
   },
   mounted() {
     const self = this;
-    for (var i = 0; i < Object.keys(timezones).length; i++) {
-      const key = Object.keys(timezones)[i];
-      const time = timezones[key];
-      const addORsub = time[4];
-      const UTCoffset = time.substr(4, 6);
-      const location = time.substr(12);
-    }
-
    function setDate() {
      const secondHand = document.getElementsByClassName('second-hand');
      const minsHand = document.getElementsByClassName('min-hand');
@@ -171,8 +180,11 @@ export default {
        if (time === '17:38') {
          img.classList.add('fetty');
        } else {
-         if ('17:59' > time && time > '17:00') {
-           self.addFetty(i, time)
+         if ('17:59' >= time && time >= '17:00') {
+           if (!self.allClocks) {
+             img.classList.add('fetty');
+             self.addFetty(i, time)
+           }
          } else {
            if (img.classList.contains('fetty')) {
              img.classList.remove('fetty');
@@ -427,6 +439,10 @@ export default {
     background-color: #111;
     overflow-x: hidden;
     padding-top: 150px;
+  }
+
+  .sidenav h1 {
+    color: #f1f1f1;
   }
 
   @media only screen and (min-width: 470px) {
