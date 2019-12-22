@@ -384,7 +384,7 @@ body {
   min-height: 100vh;
   align-items: center;
   font-family: Arial, Helvetica, sans-serif;
-  margin-top: 22em;
+  margin-top: 13em;
 }
 
 #app {
@@ -546,7 +546,8 @@ body {
 .location {
   font-weight: bold;
   position: absolute;
-  top: 350px;
+  top: 200px;
+  font-size: 2em;
 }
 
 .sidenav {
@@ -585,6 +586,18 @@ body {
   html {
     font-size: 6px;
   }
+
+  body {
+    margin-top: 10em;
+  }
+
+  .clock {
+    margin-bottom: 50px;
+  }
+
+  .location {
+    top: 215px;
+  }
 }
 
 @media only screen and (min-width: 535px) {
@@ -592,8 +605,8 @@ body {
     font-size: 7px;
   }
 
-  body {
-    margin-top: 18em;
+  .location {
+    top: 250px;
   }
 }
 
@@ -604,7 +617,7 @@ body {
 
   body {
     margin-left: 160px;
-    margin-top: 13em;
+    margin-top: 7em;
   }
 
   .header {
@@ -623,6 +636,10 @@ body {
 
   .slide-up {
     transform: unset;
+  }
+
+  .location {
+    top: 330px;
   }
 }
 </style>
