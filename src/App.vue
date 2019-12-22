@@ -4,17 +4,22 @@
     <div class="header">
       <h1>It's always 1738 somewhere...</h1>
       <div class="buttons">
-        <a v-if="allClocks" class="btn btn-find" @click="findFetty(0)">Find Fetty Clock</a>
+        <a v-if="!showClose" class="btn btn-find" @click="findFetty(0)">Find Fetty Clock</a>
         <a class="btn btn-show" @click="alwaysShowFetty">
           {{allClocks ? 'Only Show Timezones' : 'Always Show Fetty Clock'}}
+        </a>
+        <a v-if="!allClocks" class="btn btn-warn" @click="showClose = !showClose">
+          {{showClose ? 'Hide Times Close To 1738' : 'Show Times Close To 1738'}}
         </a>
       </div>
     </div>
 
     <div class="sidenav">
-      <h1 v-if="!allClocks">Almost 1738...</h1>
-      <div v-for="f in allFetty" :key="f.i+'_fetty'">
-        <a style="margin: 10px 0 !important;" class="btn btn-find" @click="findFetty(f.i)"> Fetty @{{f.time}}</a>
+      <div v-if="showClose">
+        <h1 v-if="!allClocks">Almost 1738...</h1>
+        <div v-for="f in allFetty" :key="f.i+'_fetty'">
+          <a style="margin: 10px 0 !important;" class="btn btn-find" @click="findFetty(f.i)"> Fetty @{{f.time}}</a>
+        </div>
       </div>
     </div>
 
@@ -53,6 +58,7 @@ export default {
   name: 'app',
   data: () => ({
     allClocks: false,
+    showClose: false,
     fetties: [],
   }),
   computed: {
@@ -180,7 +186,7 @@ export default {
        if (time === '17:38') {
          img.classList.add('fetty');
        } else {
-         if ('17:59' >= time && time >= '17:00') {
+         if ('17:59' >= time && time >= '17:00' && self.showClose) {
            if (!self.allClocks) {
              img.classList.add('fetty');
              self.addFetty(i, time)
@@ -309,6 +315,11 @@ export default {
   .btn-show {
     background-color: #28a745;
     border-color: #28a745;
+  }
+
+  .btn-warn {
+    background-color: #ffc107;
+    border-color: #ffc107;
   }
 
   .clock {
