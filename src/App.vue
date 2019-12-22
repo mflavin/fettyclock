@@ -160,6 +160,25 @@ export default {
     }
   },
   mounted() {
+    let scrollHeight = window.scrollY;
+    let header = document.getElementsByClassName('header')[0];
+    let sidenav = document.getElementsByClassName('sidenav')[0];
+
+    window.onscroll = function() {
+      if (window.scrollY > scrollHeight) {
+        header.classList.add("slide-up");
+        sidenav.classList.add("slide-up");
+        header.classList.remove("slide-down");
+        sidenav.classList.remove("slide-down");
+      } else if (window.scrollY < scrollHeight) {
+        header.classList.remove("slide-up");
+        sidenav.classList.remove("slide-up");
+        header.classList.add("slide-down");
+        sidenav.classList.add("slide-down");
+      }
+      scrollHeight = window.scrollY;
+    };
+
     const self = this;
    function setDate() {
      const secondHand = document.getElementsByClassName('second-hand');
@@ -260,12 +279,12 @@ export default {
   html {
     background: #ff9998;
     text-align: center;
-    font-size: 10px;
+    font-size: 5px;
   }
 
   body {
     margin: 0;
-    font-size: 2rem;
+    font-size: 2em;
     display: flex;
     flex: 1;
     min-height: 100vh;
@@ -281,10 +300,6 @@ export default {
     justify-content: center;
   }
 
-  div[id$="_fettyclock"] {
-
-  }
-
   .fetty {
     background: url('https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/Fetty_Wap_%E2%80%93_Fetty_Wap.png/220px-Fetty_Wap_%E2%80%93_Fetty_Wap.png') !important;
     background-size: cover !important;
@@ -297,11 +312,11 @@ export default {
     white-space: nowrap;
     vertical-align: middle;
     border: 1px solid transparent;
-    padding: .375rem .75rem;
+    padding: .375em .75em;
     margin: 10px 20px;
-    font-size: 2rem;
+    font-size: 1em;
     line-height: 1.5;
-    border-radius: .25rem;
+    border-radius: .25em;
     color: #fff;
     text-decoration: none;
     cursor: pointer;
@@ -410,7 +425,6 @@ export default {
   }
 
   .header {
-    padding: 10px 0;
     background-color: #111;
     color: #f1f1f1;
     position: fixed;
@@ -421,6 +435,7 @@ export default {
     text-align: end;
     display: block;
     text-align: center;
+    margin-left: 130px;
   }
 
   .header h1 {
@@ -441,15 +456,31 @@ export default {
   }
 
   .sidenav {
-    height: 100%;
-    width: 160px;
+    width: 130px;
     position: fixed;
     z-index: 90;
     top: 0;
     left: 0;
     background-color: #111;
     overflow-x: hidden;
-    padding-top: 150px;
+  }
+
+  .sidenav,
+  .header {
+    height: 130px;
+    padding: 10px 0;
+  }
+
+  .slide-up {
+    transform: translateY(-160px);
+    transition-property: all;
+    transition-duration: .5s;
+  }
+
+  .slide-down {
+    /* transform: translateY(130px); */
+    transition-property: all;
+    transition-duration: .5s;
   }
 
   .sidenav h1 {
@@ -457,14 +488,40 @@ export default {
   }
 
   @media only screen and (min-width: 470px) {
+    html {
+      font-size: 6px;
+    }
     body {
       margin-top: 5em;
     }
   }
 
   @media only screen and (min-width: 535px) {
+    html {
+      font-size: 7px;
+    }
     body {
       margin-top: 3em;
+    }
+  }
+
+  @media only screen and (min-width: 827px) {
+    html {
+      font-size: 10px;
+    }
+    .header {
+      margin-left: 0;
+    }
+    .sidenav {
+      height: 100%;
+      width: 160px;
+      top: 0;
+      left: 0;
+      overflow-x: hidden;
+      padding-top: 170px;
+    }
+    .slide-up {
+      transform: unset;
     }
   }
 </style>
