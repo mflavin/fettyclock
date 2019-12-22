@@ -171,7 +171,7 @@ export default {
     let sidenav = document.getElementsByClassName('sidenav')[0];
 
     window.onscroll = function() {
-      if (window.scrollY > scrollHeight) {
+      if (window.scrollY > scrollHeight && scrollHeight > 50) {
         header.classList.add("slide-up");
         sidenav.classList.add("slide-up");
         header.classList.remove("slide-down");
@@ -384,8 +384,7 @@ body {
   min-height: 100vh;
   align-items: center;
   font-family: Arial, Helvetica, sans-serif;
-  margin-top: 8em;
-  margin-left: 160px;
+  margin-top: 22em;
 }
 
 #app {
@@ -530,6 +529,7 @@ body {
   display: block;
   text-align: center;
   margin-left: 130px;
+  width: calc(100% - 130px);
 }
 
 .header h1 {
@@ -561,7 +561,7 @@ body {
 
 .sidenav,
 .header {
-  height: 130px;
+  height: 180px;
   padding: 10px 0;
 }
 
@@ -585,10 +585,6 @@ body {
   html {
     font-size: 6px;
   }
-
-  body {
-    margin-top: 5em;
-  }
 }
 
 @media only screen and (min-width: 535px) {
@@ -597,7 +593,7 @@ body {
   }
 
   body {
-    margin-top: 3em;
+    margin-top: 18em;
   }
 }
 
@@ -606,8 +602,14 @@ body {
     font-size: 10px;
   }
 
+  body {
+    margin-left: 160px;
+    margin-top: 13em;
+  }
+
   .header {
     margin-left: 0;
+    width: 100%;
   }
 
   .sidenav {
